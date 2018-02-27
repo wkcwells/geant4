@@ -55,6 +55,8 @@
 #ifndef G4Scintillation_h
 #define G4Scintillation_h 1
 
+#define G4DEBUG_SCINTILLATION 1
+
 /////////////
 // Includes
 /////////////
