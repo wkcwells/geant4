@@ -133,7 +133,7 @@ G4Scintillation::G4Scintillation(const G4String& processName,
         fSlowIntegralTable = nullptr;
 
         G4cout << "Original verbosity level: " << verboseLevel << G4endl;
-        verboseLevel = 10;
+        //verboseLevel = 10;
         if (verboseLevel>0) {
            G4cout << GetProcessName() << " is created " << G4endl;
         }
@@ -234,13 +234,17 @@ G4Scintillation::PostStepDoIt(const G4Track& aTrack, const G4Step& aStep)
 
 	// Scintillation depends on particle type, energy deposited
         if (fScintillationByParticleType) {
-            G4cout << DEBUG_PREFIX << "Scintillation is by particle type" << G4endl;
+#if G4DEBUG_SCINTILLATION
+           G4cout << DEBUG_PREFIX << "Scintillation is by particle type" << G4endl;
+#endif
            ScintillationYield =
                           GetScintillationYieldByParticleType(aTrack, aStep);
 
            // The default linear scintillation process
         } else {
-            G4cout << DEBUG_PREFIX << "Scintillation is NOT by particle type.  Factor: " << fYieldFactor << G4endl;
+#ifdef G4DEBUG_SCINTILLATION
+           G4cout << DEBUG_PREFIX << "Scintillation is NOT by particle type.  Factor: " << fYieldFactor << G4endl;
+#endif
 
            ScintillationYield = aMaterialPropertiesTable->
                                       GetConstProperty(kSCINTILLATIONYIELD);
@@ -248,7 +252,9 @@ G4Scintillation::PostStepDoIt(const G4Track& aTrack, const G4Step& aStep)
            // Units: [# scintillation photons / MeV]
            ScintillationYield *= fYieldFactor;
         }
+#ifdef G4DEBUG_SCINTILLATION
         G4cout << DEBUG_PREFIX << "Scintillation yield: " << ScintillationYield << G4endl;
+#endif
 
         G4double ResolutionScale    = aMaterialPropertiesTable->
                                       GetConstProperty(kRESOLUTIONSCALE);
@@ -272,7 +278,9 @@ G4Scintillation::PostStepDoIt(const G4Track& aTrack, const G4Step& aStep)
         else
            MeanNumberOfPhotons = ScintillationYield*TotalEnergyDeposit;
 
+#ifdef G4DEBUG_SCINTILLATION
         G4cout << DEBUG_PREFIX << "Initial mean number of photons: " << MeanNumberOfPhotons << G4endl;
+#endif
 
         if (MeanNumberOfPhotons > 10.)
         {
@@ -289,7 +297,9 @@ G4Scintillation::PostStepDoIt(const G4Track& aTrack, const G4Step& aStep)
            // return unchanged particle and no secondaries
 
            aParticleChange.SetNumberOfSecondaries(0);
-            G4cout << DEBUG_PREFIX << "Exiting early" << G4endl;
+#ifdef G4DEBUG_SCINTILLATION
+           G4cout << DEBUG_PREFIX << "Exiting early" << G4endl;
+#endif
            return G4VRestDiscreteProcess::PostStepDoIt(aTrack, aStep);
         }
 
@@ -310,7 +320,9 @@ G4Scintillation::PostStepDoIt(const G4Track& aTrack, const G4Step& aStep)
         // new G4PhysicsOrderedFreeVector allocated to hold CII's
 
         G4int Num = fNumPhotons;
+#ifdef G4DEBUG_SCINTILLATION
         G4cout << DEBUG_PREFIX << "Initial number of photons: " << fNumPhotons << G4endl;
+#endif
 
         for (G4int scnt = 1; scnt <= nscnt; scnt++) {
 
@@ -667,7 +679,9 @@ void G4Scintillation::SetScintillationByParticleType(const G4bool scintType)
            RemoveSaturation();
         }
         fScintillationByParticleType = scintType;
+#ifdef G4DEBUG_SCINTILLATION
         G4cout << DEBUG_PREFIX << "Setting scintillation by particle type to: " << scintType << G4endl;
+#endif
 }
 
 // GetMeanFreePath
@@ -740,7 +754,9 @@ GetScintillationYieldByParticleType(const G4Track &aTrack, const G4Step &aStep)
   if(pDef==G4Proton::ProtonDefinition()) {
     Scint_Yield_Vector = aMaterialPropertiesTable->
       GetProperty(kPROTONSCINTILLATIONYIELD);
+#ifdef G4DEBUG_SCINTILLATION
     G4cout << DEBUG_PREFIX << "Using proton scintillation vector" << G4endl;
+#endif
     //Scint_Yield_Vector->DumpVector();  Why don't this work??
   }
   // Deuterons
@@ -815,7 +831,9 @@ GetScintillationYieldByParticleType(const G4Track &aTrack, const G4Step &aStep)
     G4double Yield2 = Scint_Yield_Vector->
                                Value(PreStepKineticEnergy - StepEnergyDeposit);
     ScintillationYield = Yield1 - Yield2;
+#ifdef G4DEBUG_SCINTILLATION
     G4cout << DEBUG_PREFIX << "Yield1 / Yield2: " << Yield1 << " " << Yield2 << G4endl;
+#endif
   } else {
     G4ExceptionDescription ed;
     ed << "\nG4Scintillation::GetScintillationYieldByParticleType(): Request\n"
